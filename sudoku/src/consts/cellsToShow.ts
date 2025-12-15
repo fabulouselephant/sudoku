@@ -1,0 +1,1 @@
+export const CELLS_TO_SHOW = 80

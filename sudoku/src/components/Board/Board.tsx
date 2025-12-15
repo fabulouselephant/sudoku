@@ -1,8 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Card } from "../ui/card"
 import { Button } from "../ui/button"
 import { shuffleNums } from './helpers/shuffleNums'
 import { checkNum } from './helpers/checkNum'
+import { checkGameIsOver } from './helpers/checkGameIsOver'
+import { KeyBoardNumbers } from "../KeyBoardNumbers/KeyBoardNumbers"
+import { CELLS_TO_SHOW } from "@/consts/cellsToShow"
+
 
 type Cell = {
     number: number
@@ -10,7 +14,7 @@ type Cell = {
     col: number
 }
 
-const fillCell = (grid: number[][], row: number, col: number): boolean => {
+const fillCells = (grid: number[][], row: number, col: number): boolean => {
     if (row === 9) {
         return true
     }
@@ -19,10 +23,10 @@ const fillCell = (grid: number[][], row: number, col: number): boolean => {
     const nextC = col === 8 ? 0 : col + 1
 
     const digits = shuffleNums([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    for (const d of digits) {
-        if (checkNum(grid, row, col, d)) {
-            grid[row][col] = d
-            if (fillCell(grid, nextR, nextC)) {
+    for (const digit of digits) {
+        if (checkNum(grid, row, col, digit)) {
+            grid[row][col] = digit
+            if (fillCells(grid, nextR, nextC)) {
                 return true
             }
             grid[row][col] = 0
@@ -32,8 +36,9 @@ const fillCell = (grid: number[][], row: number, col: number): boolean => {
 }
 
 const generateFullBoard = (): Cell[] => {
-    const grid: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0))
-    fillCell(grid, 0, 0)
+    
+    const grid: number [][] = Array.from({length: 9}, () => Array(9).fill(0))
+    fillCells(grid, 0, 0)
 
     const cells: Cell[] = []
     for (let row = 0; row < 9; row++) {
@@ -49,8 +54,8 @@ const generatePuzzle = () => {
     const solution = generateFullBoard()
     const puzzle: Cell[] = []
     const indices = Array.from({ length: 81 }, (_, i) => i)
-    const cellsToShow = 36
-    for (let i = 0; i < cellsToShow; i++) {
+    
+    for (let i = 0; i < CELLS_TO_SHOW; i++) {
         const randomIndex = Math.floor(Math.random() * indices.length)
         const cellIndex = indices.splice(randomIndex, 1)[0]
         puzzle.push(solution[cellIndex])
@@ -61,25 +66,50 @@ const generatePuzzle = () => {
 
 
 export const Board = () => {
-    const [puzzleBoard, setPuzzleBoard] = useState<Cell[]>([])
-    const [solutionBoard, setSolutionBoard] = useState<Cell[]>([])
-    const {solution, puzzle} = generatePuzzle()
-
-    const createBoard = () => {
-        setPuzzleBoard(puzzle)
-    }
-
-    useEffect(() => {
-        createBoard()
-    }, [])
+    const [{ puzzle, solution }, setGame] = useState(generatePuzzle)
+    const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null)
+    const [userInputs, setUserInputs] = useState<Record<string, number>>({})
+    const [wrongCell, setWrongCell] = useState<{ row: number; col: number; digit: number } | null>(null)
+    const [isGameOver, setIsGameOver] = useState(false)
 
     
+    const createBoard = () => {
+        setGame(generatePuzzle())
+        setSelectedCell(null)
+        setUserInputs({})
+        setIsGameOver(false)
+    }
+
     const grid = Array.from({ length: 9 }, (_, row) =>
         Array.from({ length: 9 }, (_, col) => {
             const cell = puzzle.find(c => c.row === row && c.col === col)
-            return cell ? cell.number : 0
+            if (cell) return cell.number
+            const key = `${row}-${col}`
+            return userInputs[key] ?? 0
         })
     )
+
+    const handleNumberInput = (digit: number) => {
+        if (!selectedCell || isGameOver) return
+        const { row, col } = selectedCell
+        if (puzzle.find(c => c.row === row && c.col === col)) return
+
+        const correctCell = solution.find(c => c.row === row && c.col === col)
+        if (correctCell && correctCell.number === digit) {
+            const newInputs = { ...userInputs, [`${row}-${col}`]: digit }
+            setUserInputs(newInputs)
+
+            const newGrid = grid.map((r, ri) =>
+                r.map((c, ci) => (ri === row && ci === col ? digit : c))
+            )
+            if (checkGameIsOver(newGrid, solution)) {
+                setIsGameOver(true)
+            }
+        } else {
+            setWrongCell({ row, col, digit })
+            setTimeout(() => setWrongCell(null), 1000)
+        }
+    }
 
     return (
         <Card className="w-fit mx-auto mt-10 p-6">
@@ -91,6 +121,7 @@ export const Board = () => {
                 {grid.map((row, rowIndex) =>
                     row.map((cellValue, colIndex) => (
                         <div
+                            onClick={() => setSelectedCell({row: rowIndex, col: colIndex})}
                             key={`${rowIndex}-${colIndex}`}
                             className={`
                                 lg:w-12 lg:h-12 w-10 h-10 text-center flex items-center justify-center
@@ -99,13 +130,24 @@ export const Board = () => {
                                 ${rowIndex !== 8 ? 'border-b' : ''}
                                 ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-2 border-r-foreground' : 'border-r-border'}
                                 ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-2 border-b-foreground' : 'border-b-border'}
+                                ${selectedCell?.row === rowIndex && selectedCell?.col === colIndex ? 'bg-muted' : ''}
+                                ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? 'text-red-500 bg-red-100' : ''}
                             `}
                         >
-                            {cellValue !== 0 ? cellValue : ''}
+                            {wrongCell?.row === rowIndex && wrongCell?.col === colIndex
+                                ? wrongCell.digit
+                                : cellValue !== 0 ? cellValue : ''}
                         </div>
                     ))
                 )}
             </div>
+            {isGameOver ? (
+                <div className="text-center py-4 text-green-600 font-bold text-xl">
+                    Congratulations! You won!
+                </div>
+            ) : (
+                <KeyBoardNumbers onNumberClick={handleNumberInput}/>
+            )}
         </Card>
     )
 }
