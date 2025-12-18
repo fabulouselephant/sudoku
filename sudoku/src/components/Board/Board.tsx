@@ -39,6 +39,7 @@ export const Board = () => {
         return createBoard()
     })
 
+    const [highlightedDigit, setHighlightedCells] = useState<number | null>(null)
     const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null)
     const [userInputs, setUserInputs] = useState<Record<string, number>>(() => {
         const saved = loadGame()
@@ -53,6 +54,18 @@ export const Board = () => {
         const saved = loadGame()
         return saved?.isGameOver ?? false
     })
+
+    const onCellSelect = (rowIndex: number, colIndex: number) => {
+        setSelectedCell({row: rowIndex, col: colIndex})
+
+        const selectedDigit = grid[rowIndex][colIndex]
+
+        if (selectedDigit !== 0) {
+            setHighlightedCells(selectedDigit)
+        } else {
+            setHighlightedCells(null)
+        }
+    }
 
     useEffect(() => {
         saveGame({ puzzle, solution, userInputs, userColors, isGameOver })
@@ -110,18 +123,21 @@ export const Board = () => {
                     row.map((cellValue, colIndex) => {
                         const cellKey = `${rowIndex}-${colIndex}`
                         const colorClass = userColors[cellKey] || ''
+                        const isHighlighted = highlightedDigit !== null && cellValue === highlightedDigit
+                        const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex
                         return (
                             <div
-                                onClick={() => setSelectedCell({row: rowIndex, col: colIndex})}
+                                onClick={() => onCellSelect(rowIndex, colIndex)}
                                 key={cellKey}
                                 className={`
                                     lg:w-12 lg:h-12 w-10 h-10 text-center flex items-center justify-center
-                                    cursor-pointer hover:bg-accent/50
+                                    cursor-pointer hover:bg-selected/50
                                     ${colIndex !== 8 ? 'border-r' : ''}
                                     ${rowIndex !== 8 ? 'border-b' : ''}
                                     ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-1 border-r-foreground' : 'border-r-border'}
                                     ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-1 border-b-foreground' : 'border-b-border'}
-                                    ${selectedCell?.row === rowIndex && selectedCell?.col === colIndex ? 'bg-accent' : ''}
+                                    ${isSelected ? 'bg-selected/50' : ''}
+                                    ${isHighlighted && !isSelected ? 'bg-selected/50' : ''}
                                     ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? 'text-red-500 bg-red-100' : ''}
                                     ${colorClass}
                                 `}

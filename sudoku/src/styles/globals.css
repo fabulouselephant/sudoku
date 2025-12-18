@@ -30,6 +30,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --muted: 28.05 77% 53% / 0.557;
+    --selected: 259.69 38% 61% / 0.3429;
   }
 
   .dark {
@@ -57,6 +58,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --selected: 259.69 38% 61% / 0.3429;
   }
 }
 
@@ -74,6 +76,7 @@
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
   --color-accent: hsl(var(--accent));
+  --color-selected: hsl(var(--selected));
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
@@ -109,13 +112,13 @@
 }
 
 /* User input digit colors */
-.user-color-1 { color: hsl(19.86 73% 60%); } 
-.user-color-2 { color: hsl(133.33 12% 56.00000000000001%); } 
-.user-color-3 { color: hsl(140.88 19% 76%) } 
-.user-color-4 { color: hsl(43 74% 66%); } 
+.user-color-1 { color: hsl(19.86 73% 50%); } 
+.user-color-2 { color: hsl(133.33 12% 50%); } 
+.user-color-3 { color: hsl(140.88 19% 56%) } 
+.user-color-4 { color: hsl(43 74% 56%); } 
 .user-color-5 { color: hsl(27 87% 67%); } 
 .user-color-6 { color: hsl(198 13% 55.00000000000001%) }
-.user-color-7 { color: hsl(5.46 38% 72%) }
+.user-color-7 { color: hsl(5.46 38% 52%) }
 .user-color-7 { color: hsl(180 22% 48%) }
 .user-color-8 { color: hsl(12.19 54% 54%) }
 .user-color-9 { color: hsl(187 85% 43%); }

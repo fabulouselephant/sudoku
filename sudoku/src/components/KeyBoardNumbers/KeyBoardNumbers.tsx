@@ -10,7 +10,7 @@ export const KeyBoardNumbers = ({ onNumberClick }: IKeyboardNumberProps) => {
     return (
         <div className="flex gap-2 justify-between">
             {keyBoardArray.map((num: number) =>
-                <Button variant="outline" key={num} onClick={() => onNumberClick(num)} size={"icon-sm"}>{num}</Button>
+                <Button className="hover:bg-selected/50" variant="outline" key={num} onClick={() => onNumberClick(num)} size={"icon-sm"}>{num}</Button>
             )}
         </div>
     )
