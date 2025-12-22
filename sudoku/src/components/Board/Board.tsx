@@ -5,6 +5,7 @@ import { Card } from "../ui/card"
 import { KeyBoardNumbers } from "../KeyBoardNumbers/KeyBoardNumbers"
 import { checkGameIsOver } from "./helpers/checkGameIsOver"
 import { type Cell } from "./Board.consts"
+import Confetti from 'react-confetti-boom'
 
 const STORAGE_KEY = 'sudoku-game'
 
@@ -151,9 +152,12 @@ export const Board = () => {
                 )}
             </div>
             {isGameOver ? (
+                <>
+                <Confetti mode="boom" particleCount={150}/>
                 <div className="text-center py-4 text-green-600 font-bold text-xl">
                     Congratulations! You won!
                 </div>
+                </>
             ) : (
                 <KeyBoardNumbers onNumberClick={handleNumberInput}/>
             )}
