@@ -6,6 +6,7 @@ import { KeyBoardNumbers } from "../KeyBoardNumbers/KeyBoardNumbers"
 import { checkGameIsOver } from "./helpers/checkGameIsOver"
 import { type Cell } from "./Board.consts"
 import Confetti from 'react-confetti-boom'
+import { Timer, resetTimer } from "./components/Timer"
 
 const STORAGE_KEY = 'sudoku-game'
 
@@ -72,6 +73,8 @@ export const Board = () => {
         saveGame({ puzzle, solution, userInputs, userColors, isGameOver })
     }, [puzzle, solution, userInputs, userColors, isGameOver])
 
+    const [timerKey, setTimerKey] = useState(0)
+
     const generateGame = () => {
         const newGame = createBoard()
         setGame(newGame)
@@ -79,6 +82,8 @@ export const Board = () => {
         setUserInputs({})
         setUserColors({})
         setIsGameOver(false)
+        resetTimer()
+        setTimerKey(prev => prev + 1)
     }
 
     const grid = Array.from({ length: 9 }, (_, row) =>
@@ -117,7 +122,10 @@ export const Board = () => {
         <Card className="w-fit mx-auto mt-10 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Sudoku</h1>
-                <Button variant="outline" onClick={generateGame}>New Game</Button>
+                <div className="flex justify-between items-center gap-2">
+                    <Button variant="outline" onClick={generateGame}>New Game</Button>
+                    <Timer key={timerKey} isRunning={!isGameOver} />
+                </div>
             </div>
             <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
                 {grid.map((row, rowIndex) =>
