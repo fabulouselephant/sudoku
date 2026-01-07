@@ -1,4 +1,4 @@
-import { CELLS_TO_SHOW } from '@/consts/cellsToShow'
+import { CELLS_TO_SHOW, TOTAL_AMOUNT } from '@/consts/cellsToShow'
 import { type Cell } from '@/components/Board/Board.consts'
 import { fillGrid } from './fillGrid'
 
@@ -7,8 +7,22 @@ type CreateBoardResult = {
     puzzle: Cell[]
 }
 
-export const createBoard = (): CreateBoardResult => {
+export interface IcreateBoardProps {
+    complexity?: 'easy' | 'medium' | 'hard'
+}
+
+export const createBoard = ({ complexity = 'medium' }: IcreateBoardProps = {}): CreateBoardResult => {
     const grid: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0))
+    let cellsToShow = CELLS_TO_SHOW
+    if (complexity === 'easy') {
+        cellsToShow = 45
+    } else if (complexity === 'medium') {
+        cellsToShow = 36
+    } else if (complexity === 'hard') {
+        cellsToShow = 27
+    }
+
+    console.log(complexity)
 
     fillGrid(grid, 0)
 
@@ -20,9 +34,9 @@ export const createBoard = (): CreateBoardResult => {
     }
 
     const puzzle: Cell[] = []
-    const indices = Array.from({ length: 81 }, (_, i) => i)
+    const indices = Array.from({ length: TOTAL_AMOUNT }, (_, i) => i)
 
-    for (let i = 0; i < CELLS_TO_SHOW; i++) {
+    for (let i = 0; i < cellsToShow; i++) {
         const randomIndex = Math.floor(Math.random() * indices.length)
         const cellIndex = indices.splice(randomIndex, 1)[0]
         puzzle.push(solution[cellIndex])

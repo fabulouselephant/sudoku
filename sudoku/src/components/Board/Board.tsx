@@ -1,12 +1,12 @@
 import { createBoard } from "./helpers/createBoard"
 import { useState, useEffect } from "react"
-import { Button } from "../ui/button"
 import { Card } from "../ui/card"
-import { KeyBoardNumbers } from "../KeyBoardNumbers/KeyBoardNumbers"
+import { KeyBoardNumbers } from "./components/KeyBoardNumbers/KeyBoardNumbers"
 import { checkGameIsOver } from "./helpers/checkGameIsOver"
 import { type Cell } from "./Board.consts"
 import Confetti from 'react-confetti-boom'
-import { Timer, resetTimer } from "./components/Timer"
+import { Timer, resetTimer } from "./components/Timer/Timer"
+import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection"
 
 const STORAGE_KEY = 'sudoku-game'
 
@@ -75,8 +75,8 @@ export const Board = () => {
 
     const [timerKey, setTimerKey] = useState(0)
 
-    const generateGame = () => {
-        const newGame = createBoard()
+    const handleNewGame = (complexity: 'easy' | 'medium' | 'hard') => {
+        const newGame = createBoard({ complexity })
         setGame(newGame)
         setSelectedCell(null)
         setUserInputs({})
@@ -119,11 +119,11 @@ export const Board = () => {
     }
     
     return (
-        <Card className="w-fit mx-auto mt-10 p-6">
+        <Card className="w-fit mx-4 md:mx-auto mt-10 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Sudoku</h1>
                 <div className="flex justify-between items-center gap-2">
-                    <Button variant="outline" onClick={generateGame}>New Game</Button>
+                    <ComplexitySelection onClick={handleNewGame} />
                     <Timer key={timerKey} isRunning={!isGameOver} />
                 </div>
             </div>
@@ -139,12 +139,12 @@ export const Board = () => {
                                 onClick={() => onCellSelect(rowIndex, colIndex)}
                                 key={cellKey}
                                 className={`
-                                    lg:w-12 lg:h-12 w-10 h-10 text-center flex items-center justify-center
+                                    px-4 py-2 text-center flex items-center justify-center
                                     cursor-pointer hover:bg-selected/50
                                     ${colIndex !== 8 ? 'border-r' : ''}
                                     ${rowIndex !== 8 ? 'border-b' : ''}
-                                    ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-1 border-r-foreground' : 'border-r-border'}
-                                    ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-1 border-b-foreground' : 'border-b-border'}
+                                    // ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-1 border-r-foreground' : 'border-r-border'}
+                                    // ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-1 border-b-foreground' : 'border-b-border'}
                                     ${isSelected ? 'bg-selected/50' : ''}
                                     ${isHighlighted && !isSelected ? 'bg-selected/50' : ''}
                                     ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? 'text-red-500 bg-red-100' : ''}
@@ -162,7 +162,7 @@ export const Board = () => {
             {isGameOver ? (
                 <>
                 <Confetti mode="boom" particleCount={150}/>
-                <div className="text-center py-4 text-green-600 font-bold text-xl">
+                <div className="text-center text-green-400 font-bold text-xl">
                     Congratulations! You won!
                 </div>
                 </>
