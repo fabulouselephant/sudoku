@@ -2,7 +2,7 @@ import { createSlice, configureStore } from '@reduxjs/toolkit'
 
 const selectedDigit =  createSlice({
     name: 'selectedDigit',
-    initialState: 0,
+    initialState: null,
     reducers: {
         setSelectedDigit: (_, action) => action.payload
     }
