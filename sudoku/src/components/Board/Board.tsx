@@ -7,10 +7,12 @@ import { type Cell } from "./Board.consts"
 import Confetti from 'react-confetti-boom'
 import { Timer, resetTimer } from "./components/Timer/Timer"
 import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection"
+import { store, setSelectedDigit } from "./store/selectedDigit"
+
 
 const STORAGE_KEY = 'sudoku-game'
 
-const getRandomColorClass = () => `user-color-${Math.floor(Math.random() * 9) + 1}`
+const getRandomColorClass = (digit: number) => `user-color-${digit}`
 
 type GameState = {
     puzzle: Cell[]
@@ -33,6 +35,7 @@ const saveGame = (state: GameState): void => {
 }
 
 export const Board = () => {
+    
     const [{solution, puzzle}, setGame] = useState(() => {
         const saved = loadGame()
         if (saved) {
@@ -41,7 +44,6 @@ export const Board = () => {
         return createBoard()
     })
 
-    const [highlightedDigit, setHighlightedCells] = useState<number | null>(null)
     const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null)
     const [userInputs, setUserInputs] = useState<Record<string, number>>(() => {
         const saved = loadGame()
@@ -63,9 +65,9 @@ export const Board = () => {
         const selectedDigit = grid[rowIndex][colIndex]
 
         if (selectedDigit !== 0) {
-            setHighlightedCells(selectedDigit)
+            store.dispatch(setSelectedDigit(selectedDigit))
         } else {
-            setHighlightedCells(null)
+            store.dispatch(setSelectedDigit(null))
         }
     }
 
@@ -104,7 +106,8 @@ export const Board = () => {
             const key = `${row}-${col}`
             const newInputs = { ...userInputs, [key]: digit }
             setUserInputs(newInputs)
-            setUserColors(prev => ({ ...prev, [key]: getRandomColorClass() }))
+            setUserColors(prev => ({ ...prev, [key]: getRandomColorClass(digit) }))
+            store.dispatch(setSelectedDigit(digit))
 
             const newGrid = grid.map((r, ri) =>
                 r.map((c, ci) => (ri === row && ci === col ? digit : c))
@@ -132,7 +135,7 @@ export const Board = () => {
                     row.map((cellValue, colIndex) => {
                         const cellKey = `${rowIndex}-${colIndex}`
                         const colorClass = userColors[cellKey] || ''
-                        const isHighlighted = highlightedDigit !== null && cellValue === highlightedDigit
+                        const isHighlighted = store.getState().selectedDigit !== null && cellValue === store.getState().selectedDigit
                         const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex
                         return (
                             <div
@@ -143,10 +146,10 @@ export const Board = () => {
                                     cursor-pointer hover:bg-selected/50
                                     ${colIndex !== 8 ? 'border-r' : ''}
                                     ${rowIndex !== 8 ? 'border-b' : ''}
-                                    // ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-1 border-r-foreground' : 'border-r-border'}
-                                    // ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-1 border-b-foreground' : 'border-b-border'}
+                                    ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-1 border-r-foreground' : 'border-r-border'}
+                                    ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-1 border-b-foreground' : 'border-b-border'}
                                     ${isSelected ? 'bg-selected/50' : ''}
-                                    ${isHighlighted && !isSelected ? 'bg-selected/50' : ''}
+                                    ${isHighlighted ? 'bg-selected/50' : ''}
                                     ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? 'text-red-500 bg-red-100' : ''}
                                     ${colorClass}
                                 `}
