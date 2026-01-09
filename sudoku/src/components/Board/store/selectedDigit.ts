@@ -4,7 +4,7 @@ const selectedDigit =  createSlice({
     name: 'selectedDigit',
     initialState: 0,
     reducers: {
-        setSelectedDigit: (state, action) => action.payload
+        setSelectedDigit: (_, action) => action.payload
     }
 })
 const store = configureStore({
