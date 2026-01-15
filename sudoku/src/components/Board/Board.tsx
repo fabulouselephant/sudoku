@@ -170,7 +170,7 @@ export const Board = () => {
                 </div>
                 </>
             ) : (
-                <KeyBoardNumbers onNumberClick={handleNumberInput}/>
+                <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput}/>
             )}
         </Card>
 
