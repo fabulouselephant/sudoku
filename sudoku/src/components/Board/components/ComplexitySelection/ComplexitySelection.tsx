@@ -20,7 +20,7 @@ export const ComplexitySelection = ({ onClick }: IComplexitySelectionProps) => {
     }
     return (
        <DropdownMenu>
-        <DropdownMenuTrigger><Button variant="outline" className="text-foreground bg-background hover:bg-accent/90">{complexity}</Button></DropdownMenuTrigger>
+        <DropdownMenuTrigger><Button variant="ghost" className="text-foreground bg-background hover:bg-accent/90">{complexity}</Button></DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Complexity</DropdownMenuLabel>
             <DropdownMenuSeparator />

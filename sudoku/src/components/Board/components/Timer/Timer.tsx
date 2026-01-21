@@ -35,7 +35,7 @@ export const Timer = ({ isRunning }: TimerProps) => {
     }, [isRunning])
 
     return (
-        <div className="font-mono text-foreground">{formatTime(timeSpent)}</div>
+        <div className="font-mono text-foreground text-sm">time:{formatTime(timeSpent)}</div>
     )
 }
 

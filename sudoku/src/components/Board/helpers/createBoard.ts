@@ -22,8 +22,6 @@ export const createBoard = ({ complexity = 'medium' }: IcreateBoardProps = {}): 
         cellsToShow = 27
     }
 
-    console.log(complexity)
-
     fillGrid(grid, 0)
 
     const solution: Cell[] = []

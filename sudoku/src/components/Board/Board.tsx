@@ -8,6 +8,8 @@ import Confetti from 'react-confetti-boom'
 import { Timer, resetTimer } from "./components/Timer/Timer"
 import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection"
 import { store, setSelectedDigit } from "./store/selectedDigit"
+import {errorCounterStore, setErrorCounter} from './store/errorCounter'
+import { ErrorCounter } from "./components/ErrorCounter/ErrorCounter"
 
 
 const STORAGE_KEY = 'sudoku-game'
@@ -35,7 +37,7 @@ const saveGame = (state: GameState): void => {
 }
 
 export const Board = () => {
-    
+
     const [{solution, puzzle}, setGame] = useState(() => {
         const saved = loadGame()
         if (saved) {
@@ -58,6 +60,7 @@ export const Board = () => {
         const saved = loadGame()
         return saved?.isGameOver ?? false
     })
+    const [gameIsLost, setGameIsLost] = useState<boolean>()
 
     const onCellSelect = (rowIndex: number, colIndex: number) => {
         setSelectedCell({row: rowIndex, col: colIndex})
@@ -118,6 +121,13 @@ export const Board = () => {
         } else {
             setWrongCell({ row, col, digit })
             setTimeout(() => setWrongCell(null), 1000)
+            const errorCounter = errorCounterStore.getState().errorCounter
+            if(errorCounter >= 3) {
+                setGameIsLost(true)
+                setIsGameOver(true)
+            }
+            errorCounterStore.dispatch(setErrorCounter(errorCounter + 1))
+
         }
     }
     
@@ -126,8 +136,9 @@ export const Board = () => {
             <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Sudoku</h1>
                 <div className="flex justify-between items-center gap-2">
-                    <ComplexitySelection onClick={handleNewGame} />
+                    <ErrorCounter errorCounter={errorCounterStore.getState().errorCounter} />
                     <Timer key={timerKey} isRunning={!isGameOver} />
+                    <ComplexitySelection onClick={handleNewGame} />
                 </div>
             </div>
             <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
@@ -162,14 +173,20 @@ export const Board = () => {
                     })
                 )}
             </div>
-            {isGameOver ? (
+            {isGameOver && !gameIsLost && 
                 <>
                 <Confetti mode="boom" particleCount={150}/>
                 <div className="text-center text-green-400 font-bold text-xl">
                     Congratulations! You won!
                 </div>
                 </>
-            ) : (
+            }
+            {isGameOver && gameIsLost && 
+                <div className="text-center text-red-400 font-bold text-xl">
+                    You loose
+                </div>
+            }
+             {!isGameOver && (
                 <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput}/>
             )}
         </Card>
