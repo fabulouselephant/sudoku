@@ -92,6 +92,8 @@ export const Board = () => {
     setUserInputs({});
     setUserColors({});
     setIsGameOver(false);
+    setGameIsLost(false);
+    errorCounterStore.dispatch(setErrorCounter(0));
     resetTimer();
     setTimerKey((prev) => prev + 1);
   };
@@ -136,14 +138,14 @@ export const Board = () => {
   };
 
   return (
-    <Card className="w-fit mx-4 md:mx-auto mt-2 p-6">
+    <Card className="w-fit mx-4 md:mx-auto mt-2 p-3 sm:p-6">
       <CardHeader>
         <div className="flex w-full justify-between mb-4">
           <h1 className="text-2xl font-bold">Sudoku</h1>
           <ComplexitySelection onClick={handleNewGame} />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col items-center">
         <div className="flex items-center gap-2 w-full justify-center mb-1">
           <ErrorCounter
             errorCounter={errorCounterStore.getState().errorCounter}
@@ -166,7 +168,7 @@ export const Board = () => {
                   onClick={() => onCellSelect(rowIndex, colIndex)}
                   key={cellKey}
                   className={`
-                                    w-10 h-10 text-center flex items-center justify-center
+                                    w-8 h-8 sm:w-10 sm:h-10 text-center flex items-center justify-center
                                     cursor-pointer hover:bg-selected/50
                                     ${colIndex !== 8 ? "border-r" : ""}
                                     ${rowIndex !== 8 ? "border-b" : ""}
