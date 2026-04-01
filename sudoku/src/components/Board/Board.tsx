@@ -1,195 +1,212 @@
-import { createBoard } from "./helpers/createBoard"
-import { useState, useEffect } from "react"
-import { Card } from "../ui/card"
-import { KeyBoardNumbers } from "./components/KeyBoardNumbers/KeyBoardNumbers"
-import { checkGameIsOver } from "./helpers/checkGameIsOver"
-import { type Cell } from "./Board.consts"
-import Confetti from 'react-confetti-boom'
-import { Timer, resetTimer } from "./components/Timer/Timer"
-import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection"
-import { store, setSelectedDigit } from "./store/selectedDigit"
-import {errorCounterStore, setErrorCounter} from './store/errorCounter'
-import { ErrorCounter } from "./components/ErrorCounter/ErrorCounter"
+import { useEffect, useState } from "react";
+import Confetti from "react-confetti-boom";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { type Cell } from "./Board.consts";
+import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection";
+import { ErrorCounter } from "./components/ErrorCounter/ErrorCounter";
+import { KeyBoardNumbers } from "./components/KeyBoardNumbers/KeyBoardNumbers";
+import { Timer, resetTimer } from "./components/Timer/Timer";
+import { checkGameIsOver } from "./helpers/checkGameIsOver";
+import { createBoard } from "./helpers/createBoard";
+import { errorCounterStore, setErrorCounter } from "./store/errorCounter";
+import { setSelectedDigit, store } from "./store/selectedDigit";
 
+const STORAGE_KEY = "sudoku-game";
 
-const STORAGE_KEY = 'sudoku-game'
-
-const getRandomColorClass = (digit: number) => `user-color-${digit}`
+const getRandomColorClass = (digit: number) => `user-color-${digit}`;
 
 type GameState = {
-    puzzle: Cell[]
-    solution: Cell[]
-    userInputs: Record<string, number>
-    userColors: Record<string, string>
-    isGameOver: boolean
-}
+  puzzle: Cell[];
+  solution: Cell[];
+  userInputs: Record<string, number>;
+  userColors: Record<string, string>;
+  isGameOver: boolean;
+};
 
 const loadGame = (): GameState | null => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-        return JSON.parse(saved)
-    }
-    return null
-}
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    return JSON.parse(saved);
+  }
+  return null;
+};
 
 const saveGame = (state: GameState): void => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-}
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+};
 
 export const Board = () => {
-
-    const [{solution, puzzle}, setGame] = useState(() => {
-        const saved = loadGame()
-        if (saved) {
-            return { puzzle: saved.puzzle, solution: saved.solution }
-        }
-        return createBoard()
-    })
-
-    const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null)
-    const [userInputs, setUserInputs] = useState<Record<string, number>>(() => {
-        const saved = loadGame()
-        return saved?.userInputs ?? {}
-    })
-    const [userColors, setUserColors] = useState<Record<string, string>>(() => {
-        const saved = loadGame()
-        return saved?.userColors ?? {}
-    })
-    const [wrongCell, setWrongCell] = useState<{ row: number; col: number; digit: number } | null>(null)
-    const [isGameOver, setIsGameOver] = useState(() => {
-        const saved = loadGame()
-        return saved?.isGameOver ?? false
-    })
-    const [gameIsLost, setGameIsLost] = useState<boolean>()
-
-    const onCellSelect = (rowIndex: number, colIndex: number) => {
-        setSelectedCell({row: rowIndex, col: colIndex})
-
-        const selectedDigit = grid[rowIndex][colIndex]
-
-        if (selectedDigit !== 0) {
-            store.dispatch(setSelectedDigit(selectedDigit))
-        } else {
-            store.dispatch(setSelectedDigit(null))
-        }
+  const [{ solution, puzzle }, setGame] = useState(() => {
+    const saved = loadGame();
+    if (saved) {
+      return { puzzle: saved.puzzle, solution: saved.solution };
     }
+    return createBoard();
+  });
 
-    useEffect(() => {
-        saveGame({ puzzle, solution, userInputs, userColors, isGameOver })
-    }, [puzzle, solution, userInputs, userColors, isGameOver])
+  const [selectedCell, setSelectedCell] = useState<{
+    row: number;
+    col: number;
+  } | null>(null);
+  const [userInputs, setUserInputs] = useState<Record<string, number>>(() => {
+    const saved = loadGame();
+    return saved?.userInputs ?? {};
+  });
+  const [userColors, setUserColors] = useState<Record<string, string>>(() => {
+    const saved = loadGame();
+    return saved?.userColors ?? {};
+  });
+  const [wrongCell, setWrongCell] = useState<{
+    row: number;
+    col: number;
+    digit: number;
+  } | null>(null);
+  const [isGameOver, setIsGameOver] = useState(() => {
+    const saved = loadGame();
+    return saved?.isGameOver ?? false;
+  });
+  const [gameIsLost, setGameIsLost] = useState<boolean>();
 
-    const [timerKey, setTimerKey] = useState(0)
+  const onCellSelect = (rowIndex: number, colIndex: number) => {
+    setSelectedCell({ row: rowIndex, col: colIndex });
 
-    const handleNewGame = (complexity: 'easy' | 'medium' | 'hard') => {
-        const newGame = createBoard({ complexity })
-        setGame(newGame)
-        setSelectedCell(null)
-        setUserInputs({})
-        setUserColors({})
-        setIsGameOver(false)
-        resetTimer()
-        setTimerKey(prev => prev + 1)
+    const selectedDigit = grid[rowIndex][colIndex];
+
+    if (selectedDigit !== 0) {
+      store.dispatch(setSelectedDigit(selectedDigit));
+    } else {
+      store.dispatch(setSelectedDigit(null));
     }
+  };
 
-    const grid = Array.from({ length: 9 }, (_, row) =>
-        Array.from({ length: 9 }, (_, col) => {
-            const cell = puzzle.find(c => c.row === row && c.col === col)
-            if (cell) return cell.number
-            const key = `${row}-${col}`
-            return userInputs[key] ?? 0
-        })
-    )
-    const handleNumberInput = (digit: number) => {
-        if (!selectedCell || isGameOver) return
-        const { row, col } = selectedCell
-        if (puzzle.find(c => c.row === row && c.col === col)) return
+  useEffect(() => {
+    saveGame({ puzzle, solution, userInputs, userColors, isGameOver });
+  }, [puzzle, solution, userInputs, userColors, isGameOver]);
 
-        const correctCell = solution.find(c => c.row === row && c.col === col)
-        if (correctCell && correctCell.number === digit) {
-            const key = `${row}-${col}`
-            const newInputs = { ...userInputs, [key]: digit }
-            setUserInputs(newInputs)
-            setUserColors(prev => ({ ...prev, [key]: getRandomColorClass(digit) }))
-            store.dispatch(setSelectedDigit(digit))
+  const [timerKey, setTimerKey] = useState(0);
 
-            const newGrid = grid.map((r, ri) =>
-                r.map((c, ci) => (ri === row && ci === col ? digit : c))
-            )
-            if (checkGameIsOver(newGrid, solution)) {
-                setIsGameOver(true)
-            }
-        } else {
-            setWrongCell({ row, col, digit })
-            setTimeout(() => setWrongCell(null), 1000)
-            const errorCounter = errorCounterStore.getState().errorCounter
-            if(errorCounter >= 3) {
-                setGameIsLost(true)
-                setIsGameOver(true)
-            }
-            errorCounterStore.dispatch(setErrorCounter(errorCounter + 1))
+  const handleNewGame = (complexity: "easy" | "medium" | "hard") => {
+    const newGame = createBoard({ complexity });
+    setGame(newGame);
+    setSelectedCell(null);
+    setUserInputs({});
+    setUserColors({});
+    setIsGameOver(false);
+    resetTimer();
+    setTimerKey((prev) => prev + 1);
+  };
 
-        }
+  const grid = Array.from({ length: 9 }, (_, row) =>
+    Array.from({ length: 9 }, (_, col) => {
+      const cell = puzzle.find((c) => c.row === row && c.col === col);
+      if (cell) return cell.number;
+      const key = `${row}-${col}`;
+      return userInputs[key] ?? 0;
+    }),
+  );
+  const handleNumberInput = (digit: number) => {
+    if (!selectedCell || isGameOver) return;
+    const { row, col } = selectedCell;
+    if (puzzle.find((c) => c.row === row && c.col === col)) return;
+
+    const correctCell = solution.find((c) => c.row === row && c.col === col);
+    if (correctCell && correctCell.number === digit) {
+      const key = `${row}-${col}`;
+      const newInputs = { ...userInputs, [key]: digit };
+      setUserInputs(newInputs);
+      setUserColors((prev) => ({ ...prev, [key]: getRandomColorClass(digit) }));
+      store.dispatch(setSelectedDigit(digit));
+
+      const newGrid = grid.map((r, ri) =>
+        r.map((c, ci) => (ri === row && ci === col ? digit : c)),
+      );
+      if (checkGameIsOver(newGrid, solution)) {
+        setIsGameOver(true);
+      }
+    } else {
+      setWrongCell({ row, col, digit });
+      setTimeout(() => setWrongCell(null), 1000);
+      const errorCounter = errorCounterStore.getState().errorCounter;
+      if (errorCounter >= 3) {
+        setGameIsLost(true);
+        setIsGameOver(true);
+      }
+      errorCounterStore.dispatch(setErrorCounter(errorCounter + 1));
     }
-    
-    return (
-        <Card className="w-fit mx-4 md:mx-auto mt-10 p-6">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Sudoku</h1>
-                <div className="flex justify-between items-center gap-2">
-                    <ErrorCounter errorCounter={errorCounterStore.getState().errorCounter} />
-                    <Timer key={timerKey} isRunning={!isGameOver} />
-                    <ComplexitySelection onClick={handleNewGame} />
-                </div>
-            </div>
-            <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
-                {grid.map((row, rowIndex) =>
-                    row.map((cellValue, colIndex) => {
-                        const cellKey = `${rowIndex}-${colIndex}`
-                        const colorClass = userColors[cellKey] || ''
-                        const isHighlighted = store.getState().selectedDigit !== null && cellValue === store.getState().selectedDigit
-                        const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex
-                        return (
-                            <div
-                                onClick={() => onCellSelect(rowIndex, colIndex)}
-                                key={cellKey}
-                                className={`
-                                    px-4 py-2 text-center flex items-center justify-center
+  };
+
+  return (
+    <Card className="w-fit mx-4 md:mx-auto mt-2 p-6">
+      <CardHeader>
+        <div className="flex w-full justify-between mb-4">
+          <h1 className="text-2xl font-bold">Sudoku</h1>
+          <ComplexitySelection onClick={handleNewGame} />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-2 w-full justify-center mb-1">
+          <ErrorCounter
+            errorCounter={errorCounterStore.getState().errorCounter}
+          />
+          <Timer key={timerKey} isRunning={!isGameOver} />
+        </div>
+        <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
+          {grid.map((row, rowIndex) =>
+            row.map((cellValue, colIndex) => {
+              const cellKey = `${rowIndex}-${colIndex}`;
+              const colorClass = userColors[cellKey] || "";
+              const isHighlighted =
+                store.getState().selectedDigit !== null &&
+                cellValue === store.getState().selectedDigit;
+              const isSelected =
+                selectedCell?.row === rowIndex &&
+                selectedCell?.col === colIndex;
+              return (
+                <div
+                  onClick={() => onCellSelect(rowIndex, colIndex)}
+                  key={cellKey}
+                  className={`
+                                    w-10 h-10 text-center flex items-center justify-center
                                     cursor-pointer hover:bg-selected/50
-                                    ${colIndex !== 8 ? 'border-r' : ''}
-                                    ${rowIndex !== 8 ? 'border-b' : ''}
-                                    ${colIndex % 3 === 2 && colIndex !== 8 ? 'border-r-1 border-r-foreground' : 'border-r-border'}
-                                    ${rowIndex % 3 === 2 && rowIndex !== 8 ? 'border-b-1 border-b-foreground' : 'border-b-border'}
-                                    ${isSelected ? 'bg-selected/50' : ''}
-                                    ${isHighlighted ? 'bg-selected/50' : ''}
-                                    ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? 'text-red-500 bg-red-100' : ''}
+                                    ${colIndex !== 8 ? "border-r" : ""}
+                                    ${rowIndex !== 8 ? "border-b" : ""}
+                                    ${colIndex % 3 === 2 && colIndex !== 8 ? "border-r-1 border-r-foreground" : "border-r-border"}
+                                    ${rowIndex % 3 === 2 && rowIndex !== 8 ? "border-b-1 border-b-foreground" : "border-b-border"}
+                                    ${isSelected ? "bg-selected/50" : ""}
+                                    ${isHighlighted ? "bg-selected/50" : ""}
+                                    ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? "text-red-500 bg-red-100" : ""}
                                     ${colorClass}
                                 `}
-                            >
-                                {wrongCell?.row === rowIndex && wrongCell?.col === colIndex
-                                    ? wrongCell.digit
-                                    : cellValue !== 0 ? cellValue : ''}
-                            </div>
-                        )
-                    })
-                )}
+                >
+                  {wrongCell?.row === rowIndex && wrongCell?.col === colIndex
+                    ? wrongCell.digit
+                    : cellValue !== 0
+                      ? cellValue
+                      : ""}
+                </div>
+              );
+            }),
+          )}
+        </div>
+        {isGameOver && !gameIsLost && (
+          <>
+            <Confetti mode="boom" particleCount={150} />
+            <div className="text-center text-green-400 font-bold text-xl">
+              Congratulations! You won!
             </div>
-            {isGameOver && !gameIsLost && 
-                <>
-                <Confetti mode="boom" particleCount={150}/>
-                <div className="text-center text-green-400 font-bold text-xl">
-                    Congratulations! You won!
-                </div>
-                </>
-            }
-            {isGameOver && gameIsLost && 
-                <div className="text-center text-red-400 font-bold text-xl">
-                    You loose
-                </div>
-            }
-             {!isGameOver && (
-                <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput}/>
-            )}
-        </Card>
-
-    )
-}
+          </>
+        )}
+        {isGameOver && gameIsLost && (
+          <div className="text-center text-red-400 font-bold text-xl">
+            You loose
+          </div>
+        )}
+      </CardContent>
+      <CardFooter>
+        {!isGameOver && (
+          <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput} />
+        )}
+      </CardFooter>
+    </Card>
+  );
+};
