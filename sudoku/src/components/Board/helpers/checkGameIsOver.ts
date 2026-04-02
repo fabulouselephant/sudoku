@@ -1,6 +1,6 @@
 
 type Cell = {
-    number: number
+        number: number
         row: number
         col: number
     }

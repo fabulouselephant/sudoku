@@ -66,6 +66,7 @@ export const Board = () => {
     return saved?.isGameOver ?? false;
   });
   const [gameIsLost, setGameIsLost] = useState<boolean>();
+  const [gameIsWon, setGameIsWon] = useState<boolean>();
 
   const onCellSelect = (rowIndex: number, colIndex: number) => {
     setSelectedCell({ row: rowIndex, col: colIndex });
@@ -123,6 +124,7 @@ export const Board = () => {
         r.map((c, ci) => (ri === row && ci === col ? digit : c)),
       );
       if (checkGameIsOver(newGrid, solution)) {
+        setGameIsWon(true);
         setIsGameOver(true);
       }
     } else {
@@ -138,14 +140,14 @@ export const Board = () => {
   };
 
   return (
-    <Card className="w-fit mx-4 md:mx-auto mt-2 p-3 sm:p-6">
+    <Card className="w-fit mx-auto mt-2 p-2">
       <CardHeader>
         <div className="flex w-full justify-between mb-4">
           <h1 className="text-2xl font-bold">Sudoku</h1>
           <ComplexitySelection onClick={handleNewGame} />
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col items-center">
+      <CardContent className="flex flex-col items-center px-2">
         <div className="flex items-center gap-2 w-full justify-center mb-1">
           <ErrorCounter
             errorCounter={errorCounterStore.getState().errorCounter}
@@ -190,21 +192,22 @@ export const Board = () => {
             }),
           )}
         </div>
-        {isGameOver && !gameIsLost && (
+      </CardContent>
+      <CardFooter>
+        {isGameOver && gameIsWon && (
           <>
             <Confetti mode="boom" particleCount={150} />
-            <div className="text-center text-green-400 font-bold text-xl">
+            <div className="text-center text-green-400 font-bold text-xl justify-center mx-auto">
               Congratulations! You won!
             </div>
           </>
         )}
         {isGameOver && gameIsLost && (
-          <div className="text-center text-red-400 font-bold text-xl">
+          <div className="text-center text-red-400 font-bold text-xl justify-center mx-auto">
             You loose
           </div>
         )}
-      </CardContent>
-      <CardFooter>
+
         {!isGameOver && (
           <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput} />
         )}

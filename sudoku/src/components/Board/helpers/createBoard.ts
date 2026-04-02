@@ -15,7 +15,7 @@ export const createBoard = ({ complexity = 'medium' }: IcreateBoardProps = {}): 
     const grid: number[][] = Array.from({ length: 9 }, () => Array(9).fill(0))
     let cellsToShow = CELLS_TO_SHOW
     if (complexity === 'easy') {
-        cellsToShow = 45
+        cellsToShow = 80
     } else if (complexity === 'medium') {
         cellsToShow = 36
     } else if (complexity === 'hard') {

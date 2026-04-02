@@ -7,6 +7,7 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import { ChevronDown } from "lucide-react"
 import { useState } from "react"
 
 export interface IComplexitySelectionProps {
@@ -20,7 +21,7 @@ export const ComplexitySelection = ({ onClick }: IComplexitySelectionProps) => {
     }
     return (
        <DropdownMenu>
-        <DropdownMenuTrigger><Button variant="ghost" className="text-foreground bg-background hover:bg-accent/90">{complexity}</Button></DropdownMenuTrigger>
+        <DropdownMenuTrigger><Button variant="ghost" className="text-foreground bg-background hover:bg-accent/90">{complexity}<ChevronDown className="ml-1 h-4 w-4" /></Button></DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Complexity</DropdownMenuLabel>
             <DropdownMenuSeparator />
