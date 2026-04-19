@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti-boom";
+import { Moon, Sun } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { Button } from "../ui/button";
 import { type Cell } from "./Board.consts";
 import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection";
 import { ErrorCounter } from "./components/ErrorCounter/ErrorCounter";
@@ -10,6 +12,7 @@ import { checkGameIsOver } from "./helpers/checkGameIsOver";
 import { createBoard } from "./helpers/createBoard";
 import { errorCounterStore, setErrorCounter } from "./store/errorCounter";
 import { setSelectedDigit, store } from "./store/selectedDigit";
+import { useTheme } from "@/lib/useTheme";
 
 const STORAGE_KEY = "sudoku-game";
 
@@ -36,6 +39,7 @@ const saveGame = (state: GameState): void => {
 };
 
 export const Board = () => {
+  const { isDark, toggle } = useTheme();
   const [{ solution, puzzle }, setGame] = useState(() => {
     const saved = loadGame();
     if (saved) {
@@ -123,7 +127,7 @@ export const Board = () => {
       const newGrid = grid.map((r, ri) =>
         r.map((c, ci) => (ri === row && ci === col ? digit : c)),
       );
-      if (checkGameIsOver(newGrid, solution)) {
+      if (checkGameIsOver(newGrid, solution, puzzle)) {
         setGameIsWon(true);
         setIsGameOver(true);
       }
@@ -131,7 +135,7 @@ export const Board = () => {
       setWrongCell({ row, col, digit });
       setTimeout(() => setWrongCell(null), 1000);
       const errorCounter = errorCounterStore.getState().errorCounter;
-      if (errorCounter >= 3) {
+      if (errorCounter >= 2) {
         setGameIsLost(true);
         setIsGameOver(true);
       }
@@ -144,7 +148,12 @@ export const Board = () => {
       <CardHeader>
         <div className="flex w-full justify-between mb-4">
           <h1 className="text-2xl font-bold">Sudoku</h1>
-          <ComplexitySelection onClick={handleNewGame} />
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={toggle}>
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            <ComplexitySelection onClick={handleNewGame} />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col items-center px-2">

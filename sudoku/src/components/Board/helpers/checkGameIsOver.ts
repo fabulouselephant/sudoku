@@ -1,12 +1,9 @@
+import { type Cell } from '@/components/Board/Board.consts'
 
-type Cell = {
-        number: number
-        row: number
-        col: number
-    }
-
-export const checkGameIsOver = (grid: number[][], solution: Cell[]): boolean => {
+export const checkGameIsOver = (grid: number[][], solution: Cell[], puzzle: Cell[]): boolean => {
+    const puzzleKeys = new Set(puzzle.map((c) => `${c.row}-${c.col}`))
     for (const cell of solution) {
+        if (puzzleKeys.has(`${cell.row}-${cell.col}`)) continue
         if (grid[cell.row][cell.col] !== cell.number) {
             return false
         }
