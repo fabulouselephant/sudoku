@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti-boom";
 import { Moon, Sun } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { Card, CardContent, CardHeader } from "../ui/card";
 import { Button } from "../ui/button";
 import { type Cell } from "./Board.consts";
 import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection";
@@ -144,83 +144,85 @@ export const Board = () => {
   };
 
   return (
-    <Card className="w-fit mx-auto mt-2 p-2">
-      <CardHeader>
-        <div className="flex w-full justify-between mb-4">
-          <h1 className="text-2xl font-bold">Sudoku</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggle}>
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <ComplexitySelection onClick={handleNewGame} />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center px-2">
-        <div className="flex items-center gap-2 w-full justify-center mb-1">
-          <ErrorCounter
-            errorCounter={errorCounterStore.getState().errorCounter}
-          />
-          <Timer key={timerKey} isRunning={!isGameOver} />
-        </div>
-        <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
-          {grid.map((row, rowIndex) =>
-            row.map((cellValue, colIndex) => {
-              const cellKey = `${rowIndex}-${colIndex}`;
-              const colorClass = userColors[cellKey] || "";
-              const isHighlighted =
-                store.getState().selectedDigit !== null &&
-                cellValue === store.getState().selectedDigit;
-              const isSelected =
-                selectedCell?.row === rowIndex &&
-                selectedCell?.col === colIndex;
-              return (
-                <div
-                  onClick={() => onCellSelect(rowIndex, colIndex)}
-                  key={cellKey}
-                  className={`
-                                    w-8 h-8 sm:w-10 sm:h-10 text-center flex items-center justify-center
-                                    cursor-pointer hover:bg-selected/50
-                                    ${colIndex !== 8 ? "border-r" : ""}
-                                    ${rowIndex !== 8 ? "border-b" : ""}
-                                    ${colIndex % 3 === 2 && colIndex !== 8 ? "border-r-1 border-r-foreground" : "border-r-border"}
-                                    ${rowIndex % 3 === 2 && rowIndex !== 8 ? "border-b-1 border-b-foreground" : "border-b-border"}
-                                    ${isSelected ? "bg-selected/50" : ""}
-                                    ${isHighlighted ? "bg-selected/50" : ""}
-                                    ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? "text-red-500 bg-red-100" : ""}
-                                    ${colorClass}
-                                `}
-                >
-                  {wrongCell?.row === rowIndex && wrongCell?.col === colIndex
-                    ? wrongCell.digit
-                    : cellValue !== 0
-                      ? cellValue
-                      : ""}
-                </div>
-              );
-            }),
-          )}
-        </div>
-      </CardContent>
-      <CardFooter>
-        {isGameOver && gameIsWon && (
-          <>
-            <Confetti mode="boom" particleCount={150} />
-            <div className="text-center text-green-400 font-bold text-xl justify-center mx-auto">
-              Congratulations! You won!
+    <div className="flex flex-col items-center justify-center">
+      <Card className="w-fit p-4">
+        <CardHeader>
+          <div className="flex w-full justify-between mb-4">
+            <h1 className="text-2xl font-bold">Sudoku</h1>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" onClick={toggle}>
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <ComplexitySelection onClick={handleNewGame} />
             </div>
-          </>
-        )}
-        {isGameOver && gameIsLost && (
-          <div className="text-center text-red-400 font-bold text-xl justify-center mx-auto">
-            You loose
           </div>
-        )}
+        </CardHeader>
+        <CardContent className="flex flex-col items-center">
+          <div className="flex items-center gap-2 w-full justify-center mb-1">
+            <ErrorCounter
+              errorCounter={errorCounterStore.getState().errorCounter}
+            />
+            <Timer key={timerKey} isRunning={!isGameOver} />
+          </div>
+          <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
+            {grid.map((row, rowIndex) =>
+              row.map((cellValue, colIndex) => {
+                const cellKey = `${rowIndex}-${colIndex}`;
+                const colorClass = userColors[cellKey] || "";
+                const isHighlighted =
+                  store.getState().selectedDigit !== null &&
+                  cellValue === store.getState().selectedDigit;
+                const isSelected =
+                  selectedCell?.row === rowIndex &&
+                  selectedCell?.col === colIndex;
+                return (
+                  <div
+                    onClick={() => onCellSelect(rowIndex, colIndex)}
+                    key={cellKey}
+                    className={`
+                                      w-8 h-8 sm:w-10 sm:h-10 text-center flex items-center justify-center
+                                      cursor-pointer hover:bg-selected/50
+                                      ${colIndex !== 8 ? "border-r" : ""}
+                                      ${rowIndex !== 8 ? "border-b" : ""}
+                                      ${colIndex % 3 === 2 && colIndex !== 8 ? "border-r-1 border-r-foreground" : "border-r-border"}
+                                      ${rowIndex % 3 === 2 && rowIndex !== 8 ? "border-b-1 border-b-foreground" : "border-b-border"}
+                                      ${isSelected ? "bg-selected/50" : ""}
+                                      ${isHighlighted ? "bg-selected/50" : ""}
+                                      ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? "text-red-500 bg-red-100" : ""}
+                                      ${colorClass}
+                                  `}
+                  >
+                    {wrongCell?.row === rowIndex && wrongCell?.col === colIndex
+                      ? wrongCell.digit
+                      : cellValue !== 0
+                        ? cellValue
+                        : ""}
+                  </div>
+                );
+              }),
+            )}
+          </div>
+        </CardContent>
+      </Card>
+      <div className="flex flex-col items-center justify-center mt-3">
+        {isGameOver && gameIsWon && (
+            <>
+              <Confetti mode="boom" particleCount={150} />
+              <div className="text-center text-green-400 font-bold text-xl justify-center mx-auto">
+                Congratulations! You won!
+              </div>
+            </>
+          )}
+          {isGameOver && gameIsLost && (
+            <div className="text-center text-red-400 font-bold text-xl justify-center mx-auto">
+              You loose
+            </div>
+          )}
 
-        {!isGameOver && (
-          <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput} />
-        )}
-      </CardFooter>
-    </Card>
-  );
-};
+          {!isGameOver && (
+            <KeyBoardNumbers grid={grid} onNumberClick={handleNumberInput} />
+          )}
+      </div>
+    </div>
+  )
+}
