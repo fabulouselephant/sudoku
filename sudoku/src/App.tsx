@@ -9,12 +9,12 @@ function App() {
   )
 
   return (
-    <>
+    <div className="h-screen flex flex-col">
       <Header isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center">
         <Board />
       </div>
-    </>
+    </div>
   )
 }
 

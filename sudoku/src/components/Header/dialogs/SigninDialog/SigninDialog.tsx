@@ -11,7 +11,7 @@ export const SigninDialog = ({ isOpen, onClose, onLogin }: Props) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        <AuthForm onLogin={onLogin}/>
+        <AuthForm onLogin={onLogin} onClose={onClose}/>
       </DialogContent>
     </Dialog>
   )

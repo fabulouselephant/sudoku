@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";                                                                                                                                                                    
  
 type Props = {                                                                                                                                                                                                      
-  onLogin: () => void;
-};                                                                                                                                                                                                                  
+  onLogin: () => void
+  onClose: () => void
+}                                                                                                                                                                                                   
                 
-export const AuthForm = ({ onLogin }: Props) => {
+export const AuthForm = ({ onLogin, onClose }: Props) => {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState("");                                                                                                                                                                             
   const [email, setEmail] = useState("");
@@ -24,14 +25,15 @@ export const AuthForm = ({ onLogin }: Props) => {
                 
     if (result.token) {
       localStorage.setItem("token", result.token);
-      onLogin();                                                                                                                                                                                                    
+      onLogin()        
+      onClose()                                                                                                                                                                                           
     } else {
-      setError(result.error ?? result.errors?.join(", ") ?? "Something went wrong");                                                                                                                                
+      setError(result.error ?? result.errors?.join(", ") ?? "Something went wrong")                                                                                                                              
     }                                                                                                                                                                                                               
-  };
+  }
                                                                                                                                                                                                                     
   return (      
-    <Card className="w-80 mx-auto mt-20 p-4">
+    <Card className="w-80 mx-auto my-20 p-4">
       <CardHeader>                                                                                                                                                                                                  
         <h1 className="text-2xl font-bold text-center">
           {isLogin ? "Login" : "Sign Up"}                                                                                                                                                                           
@@ -44,6 +46,7 @@ export const AuthForm = ({ onLogin }: Props) => {
               className="border rounded px-3 py-2 text-sm"                                                                                                                                                          
               placeholder="Name"                                                                                                                                                                                    
               value={name}
+              required={true}
               onChange={(e) => setName(e.target.value)}                                                                                                                                                             
             />  
           )}
@@ -52,6 +55,7 @@ export const AuthForm = ({ onLogin }: Props) => {
             placeholder="Email"
             type="email"                                                                                                                                                                                            
             value={email}
+            required={true}
             onChange={(e) => setEmail(e.target.value)}
           />
           <input                                                                                                                                                                                                    
@@ -59,10 +63,11 @@ export const AuthForm = ({ onLogin }: Props) => {
             placeholder="Password"                                                                                                                                                                                  
             type="password"
             value={password}
+            required={true}
             onChange={(e) => setPassword(e.target.value)}
           />                                                                                                                                                                                                        
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit">{isLogin ? "Login" : "Sign Up"}</Button>                                                                                                                                            
+          <Button className="bg-green-800/80 text-white hover:bg-green-800/80" type="submit">{isLogin ? "Login" : "Sign Up"}</Button>                                                                                                                                            
           <p                                                                                                                                                                                                        
             className="text-sm text-center cursor-pointer underline"
             onClick={() => setIsLogin(!isLogin)}                                                                                                                                                                    

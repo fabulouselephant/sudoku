@@ -1,86 +1,101 @@
-import { useEffect, useState } from "react";
-import Confetti from "react-confetti-boom";
-import { Moon, Sun } from "lucide-react";
-import { Card, CardContent, CardHeader } from "../ui/card";
-import { Button } from "../ui/button";
-import { type Cell } from "./Board.consts";
-import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection";
-import { ErrorCounter } from "./components/ErrorCounter/ErrorCounter";
-import { KeyBoardNumbers } from "./components/KeyBoardNumbers/KeyBoardNumbers";
-import { Timer, resetTimer } from "./components/Timer/Timer";
-import { checkGameIsOver } from "./helpers/checkGameIsOver";
-import { createBoard } from "./helpers/createBoard";
-import { errorCounterStore, setErrorCounter } from "./store/errorCounter";
-import { setSelectedDigit, store } from "./store/selectedDigit";
-import { useTheme } from "@/lib/useTheme";
+import { useEffect, useState } from "react"
+import Confetti from "react-confetti-boom"
+import { Moon, Sun } from "lucide-react"
+import { Card, CardContent, CardHeader } from "../ui/card"
+import { Button } from "../ui/button"
+import { type Cell } from "./Board.consts"
+import { ComplexitySelection } from "./components/ComplexitySelection/ComplexitySelection"
+import { ErrorCounter } from "./components/ErrorCounter/ErrorCounter"
+import { KeyBoardNumbers } from "./components/KeyBoardNumbers/KeyBoardNumbers"
+import { Timer, resetTimer } from "./components/Timer/Timer"
+import { checkGameIsOver } from "./helpers/checkGameIsOver"
+import { createBoard } from "./helpers/createBoard"
+import { errorCounterStore, setErrorCounter } from "./store/errorCounter"
+import { setSelectedDigit, store } from "./store/selectedDigit"
+import { useTheme } from "@/lib/useTheme"
+import { api } from "@/lib/api"
 
-const STORAGE_KEY = "sudoku-game";
+const STORAGE_KEY = "sudoku-game"
 
-const getRandomColorClass = (digit: number) => `user-color-${digit}`;
+const getRandomColorClass = (digit: number) => `user-color-${digit}`
 
 type GameState = {
-  puzzle: Cell[];
-  solution: Cell[];
-  userInputs: Record<string, number>;
-  userColors: Record<string, string>;
-  isGameOver: boolean;
-};
+  puzzle: Cell[]
+  solution: Cell[]
+  userInputs: Record<string, number>
+  userColors: Record<string, string>
+  isGameOver: boolean
+}
+
+const saveScore = (won: boolean, complexity: string) => {
+  const timeSpent = JSON.parse(localStorage.getItem("sudoku-game-timer") ?? "0")
+  const errorCounter = errorCounterStore.getState().errorCounter
+
+  api.post('/api/scores', {
+    difficulty: complexity,
+    time_spent: timeSpent,
+    error_count: errorCounter,
+    won,
+    completed_at: new Date().toISOString(),
+  })
+}
 
 const loadGame = (): GameState | null => {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     return JSON.parse(saved);
   }
-  return null;
+  return null
 };
 
 const saveGame = (state: GameState): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-};
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+}
 
 export const Board = () => {
-  const { isDark, toggle } = useTheme();
+  const { isDark, toggle } = useTheme()
   const [{ solution, puzzle }, setGame] = useState(() => {
-    const saved = loadGame();
+    const saved = loadGame()
     if (saved) {
-      return { puzzle: saved.puzzle, solution: saved.solution };
+      return { puzzle: saved.puzzle, solution: saved.solution }
     }
-    return createBoard();
-  });
+    return createBoard()
+  })
 
   const [selectedCell, setSelectedCell] = useState<{
-    row: number;
-    col: number;
-  } | null>(null);
+    row: number
+    col: number
+  } | null>(null)
   const [userInputs, setUserInputs] = useState<Record<string, number>>(() => {
-    const saved = loadGame();
-    return saved?.userInputs ?? {};
-  });
+    const saved = loadGame()
+    return saved?.userInputs ?? {}
+  })
   const [userColors, setUserColors] = useState<Record<string, string>>(() => {
-    const saved = loadGame();
-    return saved?.userColors ?? {};
-  });
+    const saved = loadGame()
+    return saved?.userColors ?? {}
+  })
   const [wrongCell, setWrongCell] = useState<{
-    row: number;
-    col: number;
-    digit: number;
-  } | null>(null);
+    row: number
+    col: number
+    digit: number
+  } | null>(null)
   const [isGameOver, setIsGameOver] = useState(() => {
-    const saved = loadGame();
-    return saved?.isGameOver ?? false;
-  });
-  const [gameIsLost, setGameIsLost] = useState<boolean>();
-  const [gameIsWon, setGameIsWon] = useState<boolean>();
+    const saved = loadGame()
+    return saved?.isGameOver ?? false
+  })
+  const [gameIsLost, setGameIsLost] = useState<boolean>()
+  const [gameIsWon, setGameIsWon] = useState<boolean>()
+  const [complexity, setComplexity] = useState<"easy" | "medium" | "hard">("medium")
 
   const onCellSelect = (rowIndex: number, colIndex: number) => {
-    setSelectedCell({ row: rowIndex, col: colIndex });
+    setSelectedCell({ row: rowIndex, col: colIndex })
 
-    const selectedDigit = grid[rowIndex][colIndex];
+    const selectedDigit = grid[rowIndex][colIndex]
 
     if (selectedDigit !== 0) {
-      store.dispatch(setSelectedDigit(selectedDigit));
+      store.dispatch(setSelectedDigit(selectedDigit))
     } else {
-      store.dispatch(setSelectedDigit(null));
+      store.dispatch(setSelectedDigit(null))
     }
   };
 
@@ -91,16 +106,17 @@ export const Board = () => {
   const [timerKey, setTimerKey] = useState(0);
 
   const handleNewGame = (complexity: "easy" | "medium" | "hard") => {
-    const newGame = createBoard({ complexity });
-    setGame(newGame);
-    setSelectedCell(null);
-    setUserInputs({});
-    setUserColors({});
-    setIsGameOver(false);
-    setGameIsLost(false);
-    errorCounterStore.dispatch(setErrorCounter(0));
-    resetTimer();
-    setTimerKey((prev) => prev + 1);
+    const newGame = createBoard({ complexity })
+    setComplexity(complexity)
+    setGame(newGame)
+    setSelectedCell(null)
+    setUserInputs({})
+    setUserColors({})
+    setIsGameOver(false)
+    setGameIsLost(false)
+    errorCounterStore.dispatch(setErrorCounter(0))
+    resetTimer()
+    setTimerKey((prev) => prev + 1)
   };
 
   const grid = Array.from({ length: 9 }, (_, row) =>
@@ -128,18 +144,20 @@ export const Board = () => {
         r.map((c, ci) => (ri === row && ci === col ? digit : c)),
       );
       if (checkGameIsOver(newGrid, solution, puzzle)) {
-        setGameIsWon(true);
-        setIsGameOver(true);
+        setGameIsWon(true)
+        setIsGameOver(true)
+        saveScore(true, complexity)
       }
     } else {
       setWrongCell({ row, col, digit });
       setTimeout(() => setWrongCell(null), 1000);
       const errorCounter = errorCounterStore.getState().errorCounter;
       if (errorCounter >= 2) {
-        setGameIsLost(true);
-        setIsGameOver(true);
+        setGameIsLost(true)
+        setIsGameOver(true)
+        saveScore(false, complexity)
       }
-      errorCounterStore.dispatch(setErrorCounter(errorCounter + 1));
+      errorCounterStore.dispatch(setErrorCounter(errorCounter + 1))
     }
   };
 
