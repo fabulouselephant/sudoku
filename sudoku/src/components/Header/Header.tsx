@@ -26,6 +26,7 @@ export const Header = ({ isAuthenticated, setIsAuthenticated }: Props) => {
     const [isSigninDialogOpen, setIsSigninDialogOpen] = useState(false)
     const [currentUser, setCurrentUser] = useState<User | null>(null)
     const [stats, setStats] = useState<Stats | null>(null)
+    const capitalLetter = currentUser?.name.toUpperCase().charAt(0)
     
     useEffect(() => {
       if (isAuthenticated) {                                                                                                                                                                                            
@@ -43,18 +44,20 @@ export const Header = ({ isAuthenticated, setIsAuthenticated }: Props) => {
     <>
     <header className="sticky top-0 z-10 bg-background justify-between items-center p-4 shadow-xs">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Sudoku</h1>
+          <div className="flex flex-row gap-3 items-center">
+            <div className="rounded-2xl bg-sky-300 w-8 h-8 text-center leading-loose">{isAuthenticated ? capitalLetter : 'P'}</div>
+            <div>{isAuthenticated ? currentUser?.name : 'Player'}</div>
+          </div>
         <div className="flex items-center gap-2">
           {!isAuthenticated ? (
           <Button onClick={() => setIsSigninDialogOpen(true)} variant="ghost">
               Login
           </Button>
           ) : (
-            <div className="flex flex-column gap-1">
-              <div>{currentUser?.name}</div>
-              <div>Total games:{stats?.total_games}</div>
-              <div>Wins:{stats?.wins}</div>
-              <div>Looses:{stats?.losses}</div>
+            <div className="flex flex-column gap-1">  
+              <div className="border-r px-4">{stats?.total_games} played</div>
+              <div className="border-r px-4">{stats?.wins} won</div>
+              <div className="px-4">{stats?.losses} lost</div>
             </div>
           )}
         </div>

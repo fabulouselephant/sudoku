@@ -35,5 +35,19 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },                                                                                                                                                              
         body: JSON.stringify({ email, password }),
-      }).then((res) => res.json()),                                                                                                                                                                                   
+      }).then((res) => res.json()),  
+      
+    requestPasswordReset: (email: string) => 
+      fetch(`${BASE_URL}/api/password_resets`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json' },
+        body: JSON.stringify({email}),
+      }).then((res) => res.json()),
+
+    resetPassword: (token: string, password: string) =>
+      fetch(`${BASE_URL}/api/password_resets/${token}`, {
+        method: 'PATCH',
+        headers: {'Content-Type': 'application/json' },
+        body: JSON.stringify({password}),
+      }).then((res) => res.json()),
   }             

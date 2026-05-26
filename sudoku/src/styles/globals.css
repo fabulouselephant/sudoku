@@ -35,7 +35,7 @@
 
   .dark {
     --background: 20 14.3% 4.1%;
-    --foreground: 240 5% 75%;
+    --foreground: 240 5% 88%;
     --card: 24 9.8% 10%;
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 9%;
@@ -50,7 +50,7 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 85.7% 97.3%;
-    --border: hsl(239.66 3% 14.000000000000002%);
+    --border: 239.66 3% 28%;
     --input: 240 3.7% 15.9%;
     --ring: 142.4 71.8% 29.2%;
     --chart-1: 220 70% 50%;
@@ -107,7 +107,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-mono;
   }
 }
 
@@ -122,4 +122,3 @@
 .user-color-7 { color: hsl(180 22% 48%) }
 .user-color-8 { color: hsl(292, 29%, 55%) }
 .user-color-9 { color: hsl(187, 61%, 63%); }
-

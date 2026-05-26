@@ -177,9 +177,11 @@ export const Board = () => {
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <div className="flex items-center gap-2 w-full justify-center mb-1">
+            <div className="border-r px-2">
             <ErrorCounter
               errorCounter={errorCounterStore.getState().errorCounter}
             />
+            </div>
             <Timer key={timerKey} isRunning={!isGameOver} />
           </div>
           <div className="grid grid-cols-9 w-fit border-1 border-foreground rounded-sm">
@@ -198,17 +200,17 @@ export const Board = () => {
                     onClick={() => onCellSelect(rowIndex, colIndex)}
                     key={cellKey}
                     className={`
-                                      w-8 h-8 sm:w-10 sm:h-10 text-center flex items-center justify-center
-                                      cursor-pointer hover:bg-selected/50
-                                      ${colIndex !== 8 ? "border-r" : ""}
-                                      ${rowIndex !== 8 ? "border-b" : ""}
-                                      ${colIndex % 3 === 2 && colIndex !== 8 ? "border-r-1 border-r-foreground" : "border-r-border"}
-                                      ${rowIndex % 3 === 2 && rowIndex !== 8 ? "border-b-1 border-b-foreground" : "border-b-border"}
-                                      ${isSelected ? "bg-selected/50" : ""}
-                                      ${isHighlighted ? "bg-selected/50" : ""}
-                                      ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? "text-red-500 bg-red-100" : ""}
-                                      ${colorClass}
-                                  `}
+                                w-8 h-8 sm:w-10 sm:h-10 text-center flex items-center justify-center
+                                cursor-pointer hover:bg-selected/50
+                                ${colIndex !== 8 ? "border-r" : ""}
+                                ${rowIndex !== 8 ? "border-b" : ""}
+                                ${colIndex % 3 === 2 && colIndex !== 8 ? "border-r-1 border-r-foreground" : "border-r-border"}
+                                ${rowIndex % 3 === 2 && rowIndex !== 8 ? "border-b-1 border-b-foreground" : "border-b-border"}
+                                ${isSelected ? "bg-selected/50" : ""}
+                                ${isHighlighted ? "bg-selected/50" : ""}
+                                ${wrongCell?.row === rowIndex && wrongCell?.col === colIndex ? "text-red-500 bg-red-100" : ""}
+                                ${colorClass}
+                              `}
                   >
                     {wrongCell?.row === rowIndex && wrongCell?.col === colIndex
                       ? wrongCell.digit
