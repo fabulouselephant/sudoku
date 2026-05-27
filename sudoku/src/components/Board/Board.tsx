@@ -128,7 +128,7 @@ export const Board = () => {
     }),
   );
   const handleNumberInput = (digit: number) => {
-    if (!selectedCell || isGameOver) return;
+    if (!selectedCell || isGameOver) return
     const { row, col } = selectedCell;
     if (puzzle.find((c) => c.row === row && c.col === col)) return;
 
@@ -197,7 +197,14 @@ export const Board = () => {
                   selectedCell?.col === colIndex;
                 return (
                   <div
+                    tabIndex={0}
+                    data-cell={`${rowIndex}-${colIndex}`}
+                    onKeyDown={(e) => {
+                      const digit = parseInt(e.key)                                                                                                                                                                                   
+                      if (digit >= 1 && digit <= 9) handleNumberInput(digit)
+                    }}  
                     onClick={() => onCellSelect(rowIndex, colIndex)}
+                    onFocus={() => onCellSelect(rowIndex, colIndex)}
                     key={cellKey}
                     className={`
                                 w-8 h-8 sm:w-10 sm:h-10 text-center flex items-center justify-center
