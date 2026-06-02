@@ -26,7 +26,6 @@ export const Header = ({ isAuthenticated, setIsAuthenticated }: Props) => {
     const [isSigninDialogOpen, setIsSigninDialogOpen] = useState(false)
     const [currentUser, setCurrentUser] = useState<User | null>(null)
     const [stats, setStats] = useState<Stats | null>(null)
-    const capitalLetter = currentUser?.name.toUpperCase().charAt(0)
     
     useEffect(() => {
       if (isAuthenticated) {                                                                                                                                                                                            
@@ -45,7 +44,7 @@ export const Header = ({ isAuthenticated, setIsAuthenticated }: Props) => {
     <header className="sticky top-0 z-10 bg-background justify-between items-center p-4 shadow-xs">
       <div className="flex justify-between items-center">
           <div className="flex flex-row gap-3 items-center">
-            <div className="rounded-2xl bg-sky-300 w-8 h-8 text-center leading-loose">{isAuthenticated ? capitalLetter : 'P'}</div>
+            <div className="rounded-2xl bg-sky-300 w-8 h-8 text-center leading-loose">{isAuthenticated ? currentUser?.name.toUpperCase().charAt(0) : 'P'}</div>
             <div>{isAuthenticated ? currentUser?.name : 'Player'}</div>
           </div>
         <div className="flex items-center gap-2">

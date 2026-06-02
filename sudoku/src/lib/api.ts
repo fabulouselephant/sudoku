@@ -1,7 +1,15 @@
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL                                                                                                                                                                  
                                                                                                                                                                                                                       
-  const getToken = () => localStorage.getItem('token')                                                                                                                                                                
+  const getToken = () => localStorage.getItem('token')    
+  
+  const handleResponse = (res: Response) => {
+    if (res.status === 401) {
+      localStorage.removeItem('token')
+      window.location.reload()
+    }
+    return res.json()
+  }
                                                                                                                                                                                                                       
   export const api = {
     post: (path: string, body: unknown) =>
@@ -12,14 +20,14 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL
           Authorization: `Bearer ${getToken()}`,                                                                                                                                                                      
         },
         body: JSON.stringify(body),                                                                                                                                                                                   
-      }).then((res) => res.json()),
+      }).then((handleResponse)),
                                                                                                                                                                                                                       
     get: (path: string) =>
       fetch(`${BASE_URL}${path}`, {                                                                                                                                                                                   
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
-      }).then((res) => res.json()),
+      }).then((handleResponse)),
   }                                                                                                                                                                                                                   
   
   export const auth = {                                                                                                                                                                                               
